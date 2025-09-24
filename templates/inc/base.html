@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Личный кабинет{% endblock title %}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.css">
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+          integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{{ url_for('static', filename='lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css') }}" rel="stylesheet"/>
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+    </style>
+</head>
+
+<body data-bs-theme="dark" id="body">
+
+<div class="container-xxl position-relative bg-white d-flex p-0" id="content">
+    <!-- Spinner Start -->
+    <div id="spinner"
+         class="bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <h4 class="user_welcome">test</h4>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Sidebar Start -->
+    <div class="sidebar pe-4 pb-3">
+        <nav class="navbar bg-light navbar-light">
+            <a href="#" class="navbar-brand mx-4 mb-3">
+                <h3 class="text-primary">{% block n %}Волонтер{% endblock n %}</h3>
+            </a>
+            <div class="navbar-nav w-100">
+                <div class="nav-item dropdown ">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-users me-2"></i>Мой класс
+                    </a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="#" class="dropdown-item">Ученики</a>
+                        <a href="#" class="dropdown-item">Пригласить</a>
+                        <a href="#" class="dropdown-item">Загрузить</a>
+                    </div>
+                </div>
+                <a href="#" class="nav-item nav-link">
+                    <i class="fa fa-calendar me-2"></i>Мероприятия
+                </a>
+            </div>
+        </nav>
+    </div>
+    <!-- Sidebar End -->
+
+    <!-- Content Start -->
+    <div class="content">
+        <!-- Navbar Start -->
+        {% include 'inc/admin_menu.html' %}
+        <!-- Navbar End -->
+        <div class="container-fluid pt-4 px-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="messagelist">
+                        {% for category, message in messages %}
+                            {% if category == "error" %}
+                                <div class="alert alert-danger" role="alert">{{ message }}</div>
+                            {% else %}
+                                <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% block content %}
+        {% endblock content %}
+    </div>
+    <!-- Content End -->
+</div>
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
+<script src="{{ url_for('static', filename='lib/chart/chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/easing/easing.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/waypoints/waypoints.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/owlcarousel/owl.carousel.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/tempusdominus/js/moment.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/tempusdominus/js/moment-timezone.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<!-- Template Javascript -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+{% block js %}
+    <script>
+        let opened = false
+        const open = document.querySelector("#chatbox__button")
+        const chatbox = document.querySelector(".chatbox__support")
+        const messages = document.querySelector(".chatbox__messages")
+        open.addEventListener("click", () => {
+            if (opened) {
+                chatbox.classList.remove("chatbox--active")
+                opened = false
+            } else {
+                chatbox.classList.add("chatbox--active")
+                opened = true
+            }
+        })
+        document.querySelector(".send__button").addEventListener("click", (e) => {
+            e.preventDefault()
+            let data = document.querySelector(".chatbox-data").value
+            if (data !== "") {
+                document.querySelector(".chatbox-data").value = ""
+                messages.innerHTML = `<div class='messages__item messages__item--visitor'>${data}</div>` + messages.innerHTML
+                data = fetch(`/chatbot/?q=${data}`)
+                    .then(data => data.json())
+                    .then(data => {
+                        message = `<div class='messages__item messages__item--operator'>${data.answer}</div>`
+
+                        var urlRegex = /(http:\/\/[^\s]+)/g;
+                        message = message.replace(urlRegex, function (url) {
+                            return '<a href="' + url + '">' + url + '</a>';
+                        })
+                        messages.innerHTML = message + messages.innerHTML
+                    })
+            }
+        })
+    </script>
+{% endblock js %}
+
+</body>
+</html>

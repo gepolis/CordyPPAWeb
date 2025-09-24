@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход и регистрация</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: #4a90e2;
+            border-bottom: 3px solid #4a90e2;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #3a7bc8;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            width: 100%;
+            text-align: center;
+            display: none;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Вход в систему</h1>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="login">Вход</div>
+            <div class="tab" data-tab="register">Регистрация</div>
+        </div>
+
+        <div class="form-section active" id="login-form">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="login-email">Электронная почта:</label>
+                    <input type="email" id="login-email" name="email" placeholder="Введите вашу почту" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Пароль:</label>
+                    <input type="password" id="login-password" name="password" placeholder="Введите пароль" required>
+                </div>
+
+                <button type="submit">Войти</button>
+            </form>
+
+            <div class="status" id="login-status"></div>
+        </div>
+
+        <div class="form-section" id="register-form">
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="register-email">Электронная почта:</label>
+                    <input type="email" id="register-email" name="email" placeholder="Введите вашу почту" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password">Пароль:</label>
+                    <input type="password" id="register-password" name="password" placeholder="Придумайте пароль" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">Подтвердите пароль:</label>
+                    <input type="password" id="confirm-password" name="confirmPassword" placeholder="Повторите пароль" required>
+                </div>
+
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+
+            <div class="status" id="register-status"></div>
+        </div>
+    </div>
+
+    <script>
+        // Переключение между вкладками входа и регистрации
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Убираем активный класс у всех вкладок
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Добавляем активный класс к текущей вкладке
+                this.classList.add('active');
+
+                // Скрываем все формы
+                document.querySelectorAll('.form-section').forEach(form => form.classList.remove('active'));
+                // Показываем соответствующую форму
+                document.getElementById(this.getAttribute('data-tab') + '-form').classList.add('active');
+            });
+        });
+
+        // Обработка формы входа
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const statusElement = document.getElementById('login-status');
+
+            // Скрываем предыдущие статусы
+            statusElement.style.display = 'none';
+
+            // Отправляем запрос на вход
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка входа: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Показываем успешный статус
+                localStorage.setItem('token', data.token);
+                statusElement.textContent = 'Вход выполнен успешно! Перенаправление...';
+                statusElement.className = 'status success';
+                statusElement.style.display = 'block';
+
+                // Перенаправляем на страницу личного кабинета
+                setTimeout(() => {
+                    window.location.href = '/lk/';
+                }, 1500);
+            })
+            .catch(error => {
+                statusElement.textContent = 'Ошибка: ' + error.message;
+                statusElement.className = 'status error';
+                statusElement.style.display = 'block';
+            });
+        });
+
+        // Обработка формы регистрации
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const statusElement = document.getElementById('register-status');
+
+            // Скрываем предыдущие статусы
+            statusElement.style.display = 'none';
+
+            // Проверяем совпадение паролей
+            if (password !== confirmPassword) {
+                statusElement.textContent = 'Ошибка: Пароли не совпадают';
+                statusElement.className = 'status error';
+                statusElement.style.display = 'block';
+                return;
+            }
+
+            // Отправляем запрос на регистрацию
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка регистрации: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Показываем успешный статус
+                localStorage.setItem('token', data.token);
+                statusElement.textContent = 'Регистрация прошла успешно! Перенаправление...';
+                statusElement.className = 'status success';
+                statusElement.style.display = 'block';
+
+                // Перенаправляем на страницу личного кабинета
+                setTimeout(() => {
+                    window.location.href = '/lk/';
+                }, 1500);
+            })
+            .catch(error => {
+                statusElement.textContent = 'Ошибка: ' + error.message;
+                statusElement.className = 'status error';
+                statusElement.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

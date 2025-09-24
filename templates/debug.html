@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Верификация QR-кодом</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .content-wrapper {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .form-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .result-section {
+            flex: 1;
+            min-width: 300px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3a7bc8;
+        }
+
+        .uuid {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .qr-code {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .qr-code img {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            max-width: 100%;
+            max-height: 250px;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            width: 100%;
+            text-align: center;
+        }
+
+        .status.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.expired {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+
+            .result-section {
+                margin-top: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Верификация QR-кодом</h1>
+
+        <div class="content-wrapper">
+            <div class="form-section">
+                <form id="verifyForm">
+                    <div class="form-group">
+                        <label for="lifetime">Время жизни (секунды):</label>
+                        <input type="number" id="lifetime" name="lifetime" value="60" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mdata">Метаданные (MData):</label>
+                        <input type="text" id="mdata" name="mdata" placeholder="Введите метаданные" required>
+                    </div>
+
+                    <button type="submit">Создать сессию верификации</button>
+                </form>
+
+                <div class="error" id="errorMessage"></div>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <h2>Результат верификации</h2>
+                <div class="uuid" id="uuidDisplay"></div>
+
+                <div class="qr-code">
+                    <img id="qrImage" alt="QR код для верификации">
+                </div>
+
+                <div class="status pending" id="statusDisplay">Ожидание сканирования...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('verifyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const lifetime = document.getElementById('lifetime').value;
+            const mdata = document.getElementById('mdata').value;
+
+            // Скрываем предыдущие ошибки
+            document.getElementById('errorMessage').style.display = 'none';
+
+            // Отправляем запрос на создание сессии верификации
+            fetch('/api/app/verify/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    lifetime: parseInt(lifetime),
+                    metadata: mdata
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.uuid) {
+                    // Показываем результат
+                    document.getElementById('resultSection').style.display = 'flex';
+                    document.getElementById('uuidDisplay').textContent = data.uuid;
+                    document.getElementById('qrImage').src = `/api/app/${data.uuid}/qr`;
+
+                    // Запускаем проверку статуса
+                    checkStatus(data.uuid);
+                } else {
+                    throw new Error('Не получен UUID от сервера');
+                }
+            })
+            .catch(error => {
+                document.getElementById('errorMessage').textContent = 'Ошибка: ' + error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+            });
+        });
+
+        function checkStatus(uuid) {
+            const statusDisplay = document.getElementById('statusDisplay');
+            const intervalId = setInterval(() => {
+                fetch(`/api/app/${uuid}/status`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Ошибка получения статуса');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Обновляем статус
+                        statusDisplay.className = 'status';
+                        statusDisplay.classList.add(data.status);
+
+                        switch(data.status) {
+                            case 'pending':
+                                statusDisplay.textContent = 'Ожидание сканирования...';
+                                break;
+                            case 'success':
+                                statusDisplay.textContent = 'Верификация успешно завершена!';
+                                clearInterval(intervalId);
+                                break;
+                            case 'expired':
+                                statusDisplay.textContent = 'Время сессии истекло. Пожалуйста, создайте новую сессию.';
+                                clearInterval(intervalId);
+                                break;
+                            default:
+                                statusDisplay.textContent = `Неизвестный статус: ${data.status}`;
+                        }
+                    })
+                    .catch(error => {
+                        statusDisplay.className = 'status expired';
+                        statusDisplay.textContent = 'Ошибка получения статуса: ' + error.message;
+                        clearInterval(intervalId);
+                    });
+            }, 2000); // Проверяем каждую секунду
+        }
+    </script>
+</body>
+</html>
