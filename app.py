@@ -519,9 +519,7 @@ def debug():
 @app.route('/auth')
 def auth():
     return render_template("auth.html")
-@app.route('/tttt')
-def tttt():
-    return render_template("dashboard2.html")
+
 
 # API для получения информации о текущем пользователе
 @app.route('/api/auth/me', methods=['GET'])
